@@ -1,19 +1,116 @@
-variable (α : Type) (p q : α → Prop)
+-- Exercises (1)
 
-example : (∀ x, p x ∧ q x) ↔ (∀ x, p x) ∧ (∀ x, q x) :=
-  ⟨
-    fun h : ∀x : α, p x ∧ q x =>
+section
+  variable (α : Type) (p q : α → Prop)
+
+  example : (∀ x, p x ∧ q x) ↔ (∀ x, p x) ∧ (∀ x, q x) :=
+    ⟨
+      fun h : ∀x : α, p x ∧ q x =>
+        ⟨
+          fun y : α => (h y).1,
+          fun y : α => (h y).2
+        ⟩,
+      fun h : (∀ x, p x) ∧ (∀ x, q x) =>
+        fun y : α => ⟨h.1 y, h.2 y⟩
+    ⟩
+
+  example : (∀ x, p x → q x) → (∀ x, p x) → (∀ x, q x) :=
+    fun h₁ : (∀ x : α, p x → q x) =>
+      fun h₂ : (∀ x : α, p x) =>
+        fun x : α => (h₁ x) (h₂ x)
+
+  example : (∀ x, p x) ∨ (∀ x, q x) → ∀ x, p x ∨ q x :=
+    fun h₁ : (∀ x, p x) ∨ (∀ x, q x) =>
+      fun x : α =>
+        h₁.elim
+          (fun h₂ : (∀ x, p x) => Or.intro_left (q x) (h₂ x))
+          (fun h₃ : (∀ x, q x) => Or.intro_right (p x) (h₃ x))
+
+end
+
+-- Exercise (2)
+
+section
+  variable (α : Type) (p q : α → Prop)
+  variable (r : Prop)
+
+  example : α → ((∀ _ : α, r) ↔ r) :=
+    fun h₁ : α =>
       ⟨
-        fun y : α => (h y).1,
-        fun y : α => (h y).2
-      ⟩,
-    fun h : (∀ x, p x) ∧ (∀ x, q x) =>
-      fun y : α => ⟨h.1 y, h.2 y⟩
-  ⟩
+        show (∀ _ : α, r) → r from
+        fun h₂ : (∀ _ : α, r) => h₂ h₁,
+        show r → (∀ _ : α, r) from
+        fun h₃ : r => fun _ : α => h₃
+      ⟩
 
-example : (∀ x, p x → q x) → (∀ x, p x) → (∀ x, q x) :=
-  fun h₁ : (∀ x : α, p x → q x) =>
-    fun h₂ : (∀ x : α, p x) =>
-      fun x : α => (h₁ x) (h₂ x)
+  section
+    open Classical
 
-example : (∀ x, p x) ∨ (∀ x, q x) → ∀ x, p x ∨ q x := sorry
+    example : (∀ x, p x ∨ r) ↔ (∀ x, p x) ∨ r :=
+      ⟨
+        fun h : (∀ x, p x ∨ r) =>
+          byCases
+            (fun hr : r =>
+              Or.intro_right (∀ x, p x) hr)
+            (fun hnr : ¬r =>
+              have : (∀ x, p x) :=
+                fun x : α =>
+                  show p x from
+                  (h x).elim
+                    (fun hpx : p x => hpx)
+                    (fun hr : r => absurd hr hnr)
+              Or.intro_left r this),
+        fun h : (∀ x, p x) ∨ r =>
+          fun x =>
+            h.elim
+              (fun hl : (∀ x, p x) => Or.intro_left r (hl x))
+              (fun hr : r => Or.intro_right (p x) hr)
+      ⟩
+
+  end
+
+  example : (∀ x, r → p x) ↔ (r → ∀ x, p x) :=
+    ⟨
+      fun h : (∀ x, r → p x) =>
+        fun hr : r =>
+          fun x =>
+            h x hr,
+      fun h : (r → ∀ x, p x) =>
+        fun x =>
+          fun hr : r =>
+            h hr x
+    ⟩
+
+end
+
+section
+  open Classical
+
+  variable (α : Type) (p q : α → Prop)
+  variable (r : Prop)
+
+  example : (∃ _ : α, r) → r :=
+    fun ⟨_, hr⟩ => hr
+
+  example (a : α) : r → (∃ _ : α, r) :=
+    fun hr => ⟨a, hr⟩
+
+  example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r :=
+    ⟨
+      fun ⟨(w : α), (hpw : p w), r⟩ => ⟨⟨w, hpw⟩, r⟩
+      ,
+      fun ⟨⟨(w : α), (hpw : p w)⟩, r⟩ => ⟨w, hpw, r⟩
+    ⟩
+
+  example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) := sorry
+
+  example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) := sorry
+  example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := sorry
+  example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := sorry
+  example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := sorry
+
+  example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
+  example (a : α) : (∃ x, p x → r) ↔ (∀ x, p x) → r := sorry
+  example (a : α) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
+
+end

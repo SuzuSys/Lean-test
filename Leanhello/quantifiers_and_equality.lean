@@ -102,9 +102,46 @@ section
       fun ⟨⟨(w : α), (hpw : p w)⟩, r⟩ => ⟨w, hpw, r⟩
     ⟩
 
-  example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) := sorry
+  example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) :=
+    ⟨
+      show (∃ x, p x ∨ q x) → (∃ x, p x) ∨ (∃ x, q x) from
+      fun ⟨(w : α), (h : p w ∨ q w)⟩ =>
+        h.elim
+          (fun hp : p w => Or.intro_left (∃ x, q x) ⟨w, hp⟩)
+          (fun hq : q w => Or.intro_right (∃ x, p x) ⟨w, hq⟩)
+      ,
+      show (∃ x, p x) ∨ (∃ x, q x) → (∃ x, p x ∨ q x) from
+      fun h : (∃ x, p x) ∨ (∃ x, q x) =>
+        h.elim
+          (fun ⟨(w : α), (hpw : p w)⟩ => ⟨w, Or.intro_left (q w) (hpw)⟩)
+          (fun ⟨(w : α), (hqw : q w)⟩ => ⟨w, Or.intro_right (p w) (hqw)⟩)
+    ⟩
 
-  example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) := sorry
+  example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) :=
+    ⟨
+      show (∀ x, p x) → ¬ (∃ x, ¬ p x) from
+      fun h : (∀ x, p x) =>
+        show ¬ (∃ x, ¬ p x) from
+        fun ⟨(w : α), (hnpw : ¬ p w)⟩ =>
+          show False from absurd (h w) hnpw
+      ,
+      show ¬ (∃ x, ¬ p x) → (∀ x, p x) from
+      fun h : ¬ (∃ x, ¬ p x) =>
+        fun x : α =>
+          byContradiction
+            (fun hn : ¬ p x =>
+              have : (∃ w, ¬ p w) := ⟨x, hn⟩
+              h this)
+    ⟩
+
+  example : (∃ x, p x) → ¬ (∀ x, ¬ p x) :=
+    fun ⟨(w : α), (h : p w)⟩ =>
+      fun hpx : ∀ x, ¬ p x => absurd h (hpx w)
+
+  /- example : ¬ (∀ x, ¬ p x) → (∃ x, p x) :=
+    fun h : ¬ (∀ x, ¬ p x) =>
+      show (∃ x, p x) from ⟨(x : α), h x⟩ -/
+
   example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := sorry
   example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := sorry
   example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := sorry

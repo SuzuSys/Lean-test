@@ -134,15 +134,24 @@ section
               h this)
     ⟩
 
-  example : (∃ x, p x) → ¬ (∀ x, ¬ p x) :=
-    fun ⟨(w : α), (h : p w)⟩ =>
-      fun hpx : ∀ x, ¬ p x => absurd h (hpx w)
+  example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) :=
+    ⟨
+      show (∃ x, p x) → ¬ (∀ x, ¬ p x) from
+      fun ⟨(w : α), (h : p w)⟩ =>
+        fun hpx : ∀ x, ¬ p x => absurd h (hpx w)
+      ,
+      show ¬ (∀ x, ¬ p x) → (∃ x, p x) from
+      fun h : ¬ (∀ x, ¬ p x) =>
+      byContradiction
+        (fun h₁ : ¬ (∃ x, p x) =>
+          have h₂ : (∀ x, ¬ p x) :=
+            fun x : α =>
+              fun h₃ : p x =>
+                have h₄ : (∃ x, p x) := ⟨x, h₃⟩
+                show False from h₁ h₄
+          show False from h h₂)
+    ⟩
 
-  /- example : ¬ (∀ x, ¬ p x) → (∃ x, p x) :=
-    fun h : ¬ (∀ x, ¬ p x) =>
-      show (∃ x, p x) from ⟨(x : α), h x⟩ -/
-
-  example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := sorry
   example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := sorry
   example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := sorry
 

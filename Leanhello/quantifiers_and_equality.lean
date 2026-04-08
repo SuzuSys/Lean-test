@@ -152,7 +152,21 @@ section
           show False from h h₂)
     ⟩
 
-  example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := sorry
+  example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) :=
+    ⟨
+      show (¬ ∃ x, p x) → (∀ x, ¬ p x) from
+      fun h₁ : (¬ ∃ x, p x) =>
+        fun x : α =>
+          fun h₂ : p x =>
+            have : (∃ x, p x) := ⟨x, h₂⟩
+            show False from h₁ this
+      ,
+      show (∀ x, ¬ p x) → (¬ ∃ x, p x) from
+      fun h₁ : (∀ x, ¬ p x) =>
+        fun ⟨(w : α), (h₂ : p w)⟩ =>
+          h₁ w h₂
+    ⟩
+
   example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := sorry
 
   example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry

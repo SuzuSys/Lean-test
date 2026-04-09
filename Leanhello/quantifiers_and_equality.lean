@@ -167,9 +167,57 @@ section
           h₁ w h₂
     ⟩
 
-  example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := sorry
+  example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) :=
+    ⟨
+      show (¬ ∀ x, p x) → (∃ x, ¬ p x) from
+      fun h₁ : (¬ ∀ x, p x) =>
+      byContradiction
+      (fun h₂ : ¬ (∃ x, ¬ p x) =>
+        have h₄ : (∀ x, p x) :=
+        fun x =>
+          byContradiction
+            (fun h₃ : ¬ p x =>
+              have : (∃ x, ¬ p x) := ⟨x, h₃⟩
+              show False from h₂ this)
+        show False from h₁ h₄)
+      ,
+      show (∃ x, ¬ p x) → (¬ ∀ x, p x) from
+      fun ⟨(w : α), (h₁ : ¬ p w)⟩ =>
+        fun h₂ : (∀ x, p x) => absurd (h₂ w) h₁
+    ⟩
 
-  example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
+  example : (∀ x, p x → r) ↔ (∃ x, p x) → r :=
+    ⟨
+      show (∀ x, p x → r) → (∃ x, p x) → r from
+      fun h₁ : (∀ x, p x → r) =>
+        fun ⟨(w : α), (h₂ : p w)⟩ =>
+          h₁ w h₂
+      ,
+      show ((∃ x, p x) → r) → (∀ x, p x → r) from
+      fun h₁ : ((∃ x, p x) → r) =>
+        fun x =>
+          fun h₂ : p x =>
+            have : (∃ x, p x) := ⟨x, h₂⟩
+            h₁ this
+    ⟩
+
+  example (_ : α) : (∃ x, p x → r) → (∀ x, p x) → r :=
+    fun ⟨(w : α), (h₁ : p w → r)⟩ =>
+      fun h₂ : (∀ x, p x) =>
+        h₁ (h₂ w)
+
+  /- example (a : α) : ((∀ x, p x) → r) → (∃ x, p x → r) :=
+    fun h₁ : ((∀ x, p x) → r) =>
+      byContradiction
+        (fun h₂ : ¬ (∃ x, p x → r) =>
+          ) -/
+
+
+
+
+
+
+
   example (a : α) : (∃ x, p x → r) ↔ (∀ x, p x) → r := sorry
   example (a : α) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
 

@@ -86,8 +86,6 @@ section
 
 end
 
-
-
 section
   open Classical
 
@@ -147,6 +145,19 @@ section
         byContradiction h₄
     ⟨h₁, h₂⟩
 
+  example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) :=
+    have h₁ : (∃ x, p x) → ¬ (∀ x, ¬ p x) :=
+      fun ⟨(w : α), (h₂ : p w)⟩ (h₃ : ∀ x, ¬ p x) => h₃ w h₂
+    have h₂ : ¬ (∀ x, ¬ p x) → (∃ x, p x) :=
+      fun h₃ : ¬ (∀ x, ¬ p x) =>
+        have h₄ : ¬ ¬ (∃ x, p x) :=
+          fun h₅ : ¬ (∃ x, p x) =>
+            have h₆ : ∀ x, ¬ p x :=
+              fun (x : α) (h₈ : p x) => h₅ ⟨x, h₈⟩
+            h₃ h₆
+        byContradiction h₄
+    ⟨h₁, h₂⟩
+
   example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) :=
     have h₁ : (¬ ∃ x, p x) → (∀ x, ¬ p x) :=
       fun (h₂ : ¬ ∃ x, p x) (x : α) (h₃ : p x) => h₂ ⟨x, h₃⟩
@@ -185,24 +196,19 @@ section
 
   example (a : α) : ((∀ x, p x) → r) → (∃ x, p x → r) :=
     fun h₁ : (∀ x, p x) → r =>
-      have h₂ : ¬ r → (∃ x, ¬ p x) :=
-        fun h₃ : ¬ r =>
-          have h₄ : ¬ ¬ ∃ x, ¬ p x :=
-            fun h₅ : ¬ ∃ x, ¬ p x =>
-              have h₆ : ∀ x, p x :=
-                fun x : α =>
-                  have h₇ : ¬ ¬ p x :=
-                    fun h₈ : ¬ p x => h₅ ⟨x, h₈⟩
-                  byContradiction h₇
-              have h₇ : ¬ ∀ x, p x :=
-                fun h₈ : ∀ x, p x => h₃ (h₁ h₈)
-              h₇ h₆
-          byContradiction h₄
       have h₄ : ¬ r → (∃ x, p x → r) :=
         fun h₅ : ¬ r =>
-          have h₆ : ∃ x, ¬ p x := h₂ h₅
+          have h₆ : ∃ x, ¬ p x :=
+              have h₈ : ¬ ¬ ∃ x, ¬ p x :=
+                fun h₉ : ¬ ∃ x, ¬ p x =>
+                  have h₁₀ : ∀ x, p x :=
+                    fun x : α =>
+                      have h₁₁ : ¬ ¬ p x :=
+                        fun h₁₂ : ¬ p x => h₉ ⟨x, h₁₂⟩
+                      byContradiction h₁₁
+                  h₅ (h₁ h₁₀)
+              byContradiction h₈
           have h₇ : (∃ x, ¬ p x) → (∃ x, p x → r) :=
-
             fun ⟨(w : α), (h₈ : ¬ p w)⟩ =>
               have h₉ : p w → r :=
                 fun h₁₀ : p w => absurd h₁₀ h₈
@@ -214,6 +220,56 @@ section
             fun _ : p a => h₆
           ⟨a, h₇⟩
       byCases h₅ h₄
+
+  example (a : α) : ((∀ x, p x) → r) → (∃ x, p x → r) :=
+    fun h₁ : (∀ x, p x) → r =>
+      have h₂ : (∀ x, p x) → (∃ x, p x → r) :=
+        fun h₃ : ∀ x, p x =>
+          have h₄ : ∀ x, p x → r :=
+            fun (x : α) (_ : p x) => h₁ h₃
+          ⟨a, h₄ a⟩
+      have h₃ : ¬ (∀ x, p x) → (∃ x, p x → r) :=
+        fun h₄ : ¬ ∀ x, p x =>
+          have h₅ : (∃ x, p x) → (∃ x, p x → r) :=
+            fun ⟨(w : α), (h₆ : p w)⟩ =>
+              have h₇ : ¬ ¬ ∃ x, p x → r :=
+                fun h₈ : ¬ ∃ x, p x → r =>
+                  have h₉ : ∀ x, p x → r :=
+                    fun (x : α) (h₁₀ : p x) =>
+                      have h₁₁ : ¬ ¬ r :=
+                        fun h₁₂ : ¬ r =>
+                          -- have h₁₃ : ¬ (p x → r) :=
+                            sorry
+                      byContradiction h₁₁
+                  h₈ ⟨a, h₉ a⟩
+              byContradiction h₇
+          have h₆ : (¬ ∃ x, p x) → (∃ x, p x → r) :=
+            fun h₇ : ¬ ∃ x, p x =>
+              have h₈ : ∀ x, p x → r :=
+                fun (x : α) (h₉ : p x) => absurd ⟨x, h₉⟩ h₇
+              ⟨a, h₈ a⟩
+          byCases h₅ h₆
+      byCases h₂ h₃
+
+  example (a : α) : ((∀ x, p x) → r) → (∃ x, p x → r) :=
+    fun h₁ : (∀ x, p x) → r =>
+      have h₂ : r → (∃ x, p x → r) :=
+        fun h₃ : r =>
+          have h₄ : p a → r :=
+            fun _ : p a => h₃
+          ⟨a, h₄⟩
+      have h₃ : ¬ r → (∃ x, p x → r) :=
+        fun h₄ : ¬ r =>
+          have h₅ : ¬ ¬ ∃ x, p x → r :=
+            fun h₆ : ¬ ∃ x, p x → r =>
+              have h₇ : ∀ x, p x → r :=
+                fun x : α =>
+                  have h₈ : ¬ ¬ (p x → r) :=
+                    fun h₉ : ¬ (p x → r) => sorry
+                  byContradiction h₈
+              h₆ ⟨a, h₇ a⟩
+          byContradiction h₅
+      byCases h₂ h₃
 
   example (a : α) : ((∀ x, p x) → r) → (∃ x, p x → r) :=
     fun h₁ : (∀ x, p x) → r =>
@@ -245,25 +301,6 @@ section
             fun _ : p a => h₆
           ⟨a, h₇⟩
       byCases h₅ h₄
-
-  example (a : α) : (∃ x, p x → r) ↔ (∀ x, p x) → r :=
-    have h₁ : (∃ x, p x → r) → (∀ x, p x) → r :=
-      fun ⟨(w : α), (h₂ : p w → r)⟩ (h₃ : ∀ x, p x) => h₂ (h₃ w)
-    have h₂ : ((∀ x, p x) → r) → (∃ x, p x → r) :=
-      fun h₃ : (∀ x, p x) → r =>
-        have h₄ : r → (∃ x, p x → r) :=
-          fun h₅ : r =>
-            have h₆ : p a → r :=
-              fun _ : p a => h₅
-            ⟨a, h₆⟩
-        have h₅ : ¬ r → (∃ x, p x → r) :=
-          fun h₆ : ¬ r =>
-            have h₇ : ¬ ∀ x, p x :=
-              fun h₈ : ∀ x, p x => h₆ (h₃ h₈)
-            have h₈ : ∃ x, ¬ p x :=
-              fun h₉ :
-        byCases h₄ h₅
-    ⟨h₁, h₂⟩
 
   example (a : α) : (∃ x, p x → r) ↔ (∀ x, p x) → r := sorry
   example (a : α) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry

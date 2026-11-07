@@ -86,7 +86,23 @@ section
 
 end
 
+
 -- Exercise (3)
+
+section
+  variable (men : Type) (barber : men)
+  variable (shaves : men → men → Prop)
+
+  example (h : ∀ x : men, shaves barber x ↔ ¬ shaves x x) : False :=
+    have h₁ : shaves barber barber ↔ ¬shaves barber barber := h barber
+    have h₂ : ¬ shaves barber barber :=
+      fun h₃ : shaves barber barber => h₁.1 h₃ h₃
+    have h₃ : shaves barber barber := h₁.2 h₂
+    h₂ h₃
+
+end
+
+-- Exercise (5)
 
 section
   open Classical

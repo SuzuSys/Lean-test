@@ -86,7 +86,6 @@ section
 
 end
 
-
 -- Exercise (3)
 
 section
@@ -99,6 +98,39 @@ section
       fun h₃ : shaves barber barber => h₁.1 h₃ h₃
     have h₃ : shaves barber barber := h₁.2 h₂
     h₂ h₃
+
+end
+
+-- Exercise (4)
+
+section
+  def y : Nat := 0
+
+  def even (n : Nat) : Prop :=
+    ∃ b : Nat, n = 2 * b
+
+  def prime (n : Nat) : Prop :=
+    n > 1 ∧ ¬ ∃ a b : Nat, a > 1 ∧ n = a * b
+
+  def infinitely_many_primes : Prop :=
+    ∀ m : Nat, ∃ n : Nat, prime n ∧ m < n
+
+  def Fermat_prime (n : Nat) : Prop :=
+    prime n ∧ ∃ m : Nat, n = 2^2^m + 1
+
+  def infinitely_many_Fermat_primes : Prop :=
+    ∀ m : Nat, ∃ n : Nat, Fermat_prime n ∧ m < n
+
+  def goldbach_conjecture : Prop :=
+    ∀ n : Nat, n > 1 ∧ even n → ∃ a b : Nat, prime a ∧ prime b ∧ n = a + b
+
+  def Goldbach's_weak_conjecture : Prop :=
+    ∀ n : Nat, n >= 5 ∧ ¬ even n →
+    ∃ a b c : Nat, prime a ∧ prime b ∧ prime c ∧ n = a + b + c
+
+  def Fermat's_last_theorem : Prop :=
+    ∀ n : Nat, n >= 3 →
+    ¬ ∃ x y z : Nat, x > 0 ∧ y > 0 ∧ z > 0 ∧ x^n + y^n = z^n
 
 end
 

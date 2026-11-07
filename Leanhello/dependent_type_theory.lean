@@ -175,6 +175,7 @@ section
 
 end
 
+-- byCases, byContradiction, em が同値であることの証明
 section
 
   open Classical
